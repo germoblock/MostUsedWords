@@ -3,8 +3,8 @@ package com.company;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Main {
@@ -15,27 +15,26 @@ public class Main {
     public static void main(String[] args) throws Exception {
         String fileName = args[0];
         Path file = Paths.get(fileName);
-        List<String> lines = Files.readAllLines(file);
+        String[] words = Files.readAllLines(file).stream()
+            .flatMap(line -> Arrays.stream(line.split(SPACE)))
+            .toArray(String[]::new);
 
-        printMostUsedWords(parseWords(lines));
+        printMostUsedWords(parseWords(words));
     }
 
-    private static Map<String, Integer> parseWords(List<String> lines) {
+    private static Map<String, Integer> parseWords(String[] words) {
         Map<String, Integer> wordsCountMap = new HashMap<>();
-        for (String line : lines) {
-            String[] words = line.split(SPACE);
-            for (String word : words) {
-                word = word.trim();
-                if (word.equals(EMPTY)) {
-                    continue;
-                }
-                if (wordsCountMap.containsKey(word)) {
-                    Integer count = wordsCountMap.get(word) + 1;
-                    wordsCountMap.put(word, count);
-                } else {
-                    wordsCountMap.put(word, 1);
-                }
+        for (String word : words) {
+            word = word.trim();
+            if (word.equals(EMPTY)) {
+                continue;
             }
+            int count = 1;
+            if (wordsCountMap.containsKey(word)) {
+                count = wordsCountMap.get(word) + 1;
+            }
+
+            wordsCountMap.put(word, count);
         }
 
         return wordsCountMap;
